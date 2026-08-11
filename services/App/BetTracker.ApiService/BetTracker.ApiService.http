@@ -1,0 +1,6 @@
+@BetTracker.ApiService_HostAddress = http://localhost:5283
+
+GET {{BetTracker.ApiService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

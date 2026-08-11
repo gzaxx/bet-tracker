@@ -6,7 +6,7 @@ Existing `BACKEND_PLAN.md` and `FRONTEND_PLAN.md` are reference material only. T
 
 ## Current phase
 
-**Phase 0 — Scaffolding**
+**Phase 1 — Domain and Persistence**
 
 After completing a phase, update this section to the next incomplete phase and record the verification command/results in the phase's handoff notes.
 
@@ -75,7 +75,7 @@ A phase is complete only when its acceptance criteria are observable, its tests 
 
 # Phase 0 — Scaffolding
 
-**Status:** Current
+**Status:** Complete
 
 ## Goal
 
@@ -108,11 +108,27 @@ Create buildable backend, frontend, orchestration, and test projects with pinned
 
 ## Handoff
 
-Record the exact solution, project, package, frontend build, and local-run commands used. Set the current phase to Phase 1 only after all acceptance checks pass.
+Phase 0 verification completed on 2026-08-11:
+
+- Solution: `BetTracker.sln`.
+- Projects: `services/App/BetTracker.ApiService/BetTracker.ApiService.csproj`, `services/App/BetTracker.AppHost/BetTracker.AppHost.csproj`, and `tests/BetTracker.Api.Tests/BetTracker.Api.Tests.csproj`.
+- Backend packages: `Microsoft.EntityFrameworkCore.Sqlite.Core` `10.0.10`, `SQLitePCLRaw.provider.e_sqlite3` `2.1.11`, `SourceGear.sqlite3` `3.53.4`, `WolverineFx.Http` `6.25.5`, `WolverineFx.RuntimeCompilation` `6.25.5`, `Aspire.Hosting.AppHost` `13.4.6`, and `Microsoft.AspNetCore.Mvc.Testing` `10.0.10`.
+- Frontend packages are pinned in `apps/bet-tracker-client/package.json` and `package-lock.json`; Node-compatible Vite `6.3.5` and React `19.0.0` are used.
+- `dotnet build BetTracker.sln` passed.
+- `dotnet test BetTracker.sln --no-build` passed with two API smoke tests, including opening an in-memory SQLite connection.
+- `npm ci` passed from `apps/bet-tracker-client` using the committed lockfile.
+- `npm run typecheck && npm run build` passed from `apps/bet-tracker-client` after the clean install.
+- `dotnet run --project services/App/BetTracker.AppHost/BetTracker.AppHost.csproj --no-build` started Aspire and its `api` resource.
+- `curl http://localhost:5283/api/v1/health` returned `Healthy`.
+- Vite proxy smoke: `curl http://localhost:5173/api/v1/health` returned `Healthy`.
+- CORS smoke from `http://localhost:5173` returned `Access-Control-Allow-Origin`.
+- The vulnerable `SQLitePCLRaw.lib.e_sqlite3` package is absent from the resolved graph; the native SQLite build comes from `SourceGear.sqlite3` `3.53.4`.
+
+Phase 1 is the next implementation phase.
 
 # Phase 1 — Domain and Persistence
 
-**Status:** Pending Phase 0
+**Status:** Current
 
 ## Goal
 

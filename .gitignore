@@ -427,3 +427,13 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+
+# Bet Tracker local data and secrets
+*.db
+*.db-shm
+*.db-wal
+**/data/
+.env*
+!.env.example
+secrets.json
