@@ -54,7 +54,7 @@ public sealed record CreateProfileRequest(string Name, string DefaultCurrency);
 public sealed record UpdateProfileRequest(string Name, string DefaultCurrency);
 
 public sealed record CreatePortfolioRequest(int ProfileId, string Name);
-public sealed record UpdatePortfolioRequest(string Name);
+public sealed record UpdatePortfolioRequest(string Name, string? Currency = null);
 
 public sealed record CreateTradeRequest(
     int PortfolioId,
