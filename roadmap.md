@@ -6,7 +6,7 @@ Existing `BACKEND_PLAN.md` and `FRONTEND_PLAN.md` are reference material only. T
 
 ## Current phase
 
-**Phase 1 — Domain and Persistence**
+**Phase 2 — Profiles and Portfolios**
 
 After completing a phase, update this section to the next incomplete phase and record the verification command/results in the phase's handoff notes.
 
@@ -128,7 +128,7 @@ Phase 1 is the next implementation phase.
 
 # Phase 1 — Domain and Persistence
 
-**Status:** Current
+**Status:** Complete
 
 ## Goal
 
@@ -165,11 +165,23 @@ Then:
 
 ## Handoff
 
-Document the schema and DTO names used by both backend and frontend. Set the current phase to Phase 2 after migration and contract tests pass.
+Phase 1 verification completed on 2026-08-11:
+
+- `Data/Entities/` contains `Profile`, `Portfolio`, `Trade`, `PriceObservation`, and optional-reference `ETF`; portfolio-to-trade and profile-to-portfolio relationships cascade on delete.
+- `PriceObservations` has the non-unique index `(Ticker, Currency, EffectiveAt)`. UTC timestamps are persisted as sortable ticks so SQLite can order `ExecutedAt` and `EffectiveAt`.
+- `Contracts/Resources.cs` defines `ProfileDto`, `PortfolioDto`, `TradeDto`, `PriceObservationDto`, and `ETFDto`, plus create/update request records. DTOs contain no EF navigation properties.
+- `Contracts/Validation/RequestValidation.cs` defines per-command validators, identifier/currency normalization, numeric range checks, and deterministic future-timestamp checks.
+- `Data/Migrations/20260811170121_InitialCreate.cs` creates the complete schema from an empty database. Development startup applies migrations automatically.
+- `SqliteTestDatabase` uses an isolated in-memory SQLite connection and `FixedClock`.
+- `dotnet build BetTracker.sln` passed with zero warnings and errors.
+- `dotnet test BetTracker.sln --no-restore` passed: 8 tests.
+- `npm run typecheck && npm run build` passed in `apps/bet-tracker-client`.
+
+Phase 2 is now the current implementation phase.
 
 # Phase 2 — Profiles and Portfolios
 
-**Status:** Pending Phase 1
+**Status:** Current
 
 ## Goal
 

@@ -12,6 +12,10 @@
     <PackageReference Include="SourceGear.sqlite3" Version="3.53.4" />
     <PackageReference Include="WolverineFx.Http" Version="6.25.5" />
     <PackageReference Include="WolverineFx.RuntimeCompilation" Version="6.25.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

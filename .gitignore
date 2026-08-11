@@ -433,7 +433,9 @@ FodyWeavers.xsd
 *.db
 *.db-shm
 *.db-wal
-**/data/
+**/data/*.db
+**/data/*.db-shm
+**/data/*.db-wal
 .env*
 !.env.example
 secrets.json
