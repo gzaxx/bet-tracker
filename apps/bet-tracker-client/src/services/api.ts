@@ -1,13 +1,16 @@
 import type {
+  CreateETFRequest,
   CreatePortfolioRequest,
   CreatePriceObservationRequest,
   CreateProfileRequest,
   CreateTradeRequest,
+  ETF,
   Portfolio,
   PortfolioSummary,
   PriceObservation,
   Profile,
   Trade,
+  UpdateETFRequest,
   UpdatePortfolioRequest,
   UpdatePriceObservationRequest,
   UpdateProfileRequest,
@@ -83,4 +86,12 @@ export const priceApi = {
 
 export const summaryApi = {
   get: (portfolioId: number) => request<PortfolioSummary>(`/api/v1/portfolios/${portfolioId}/summary`),
+}
+
+export const etfApi = {
+  list: () => request<ETF[]>('/api/v1/etfs'),
+  get: (id: number) => request<ETF>(`/api/v1/etfs/${id}`),
+  create: (body: CreateETFRequest) => request<ETF>('/api/v1/etfs', { method: 'POST', body: JSON.stringify(body) }),
+  update: (id: number, body: UpdateETFRequest) => request<ETF>(`/api/v1/etfs/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  remove: (id: number) => request<void>(`/api/v1/etfs/${id}`, { method: 'DELETE' }),
 }

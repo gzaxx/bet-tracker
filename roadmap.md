@@ -6,7 +6,7 @@ Existing `BACKEND_PLAN.md` and `FRONTEND_PLAN.md` are reference material only. T
 
 ## Current phase
 
-**Phase 6 — POC Completion and Hardening**
+**Post-POC Phase 2 — Automatic Price Fetching**
 
 After completing a phase, update this section to the next incomplete phase and record the verification command/results in the phase's handoff notes.
 
@@ -401,7 +401,7 @@ Phase 6 is now the current implementation phase.
 
 # Phase 6 — POC Completion and Hardening
 
-**Status:** Pending
+**Status:** Complete
 
 ## Goal
 
@@ -425,6 +425,20 @@ Make the local POC reliable and maintainable without expanding product scope.
 - The local smoke path is repeatable with automatic market fetching disabled.
 
 After this phase, the local POC is complete. The next phase is deferred automatic pricing.
+
+## Handoff
+
+Phase 6 verification completed on 2026-08-12:
+
+- Added optional ETF reference CRUD under `/api/v1/etfs` with normalized DTO contracts, validation, duplicate conflict handling, not-found handling, and full integration coverage.
+- Added a clean-start `README.md` covering restore, build, test, frontend install/build, Aspire startup, direct API/frontend startup, SQLite location, ignored local artifacts, and manual-price-only operation.
+- Removed unused Vite/React scaffold assets.
+- `dotnet test BetTracker.sln --no-restore` passed: 31 tests.
+- `dotnet build BetTracker.sln --no-restore` passed with zero warnings and errors.
+- `npm ci && npm run typecheck && npm run build` passed in `apps/bet-tracker-client`.
+- Final browser smoke against an empty isolated SQLite database reached onboarding, created a profile and portfolio, selected the portfolio, and rendered summary, trade, and manual-price sections. No automatic market-price network calls are configured.
+
+The local POC is complete. Automatic pricing remains deferred.
 
 # Post-POC Phase 2 — Automatic Price Fetching
 

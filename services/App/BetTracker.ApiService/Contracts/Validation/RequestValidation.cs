@@ -239,14 +239,18 @@ public abstract class ETFRequestValidatorBase(IClock clock) : RequestValidatorBa
 {
     protected IReadOnlyList<ValidationError> ValidateETF(
         string ticker,
+        string? name,
+        string? exchange,
         string? isin,
         string? currency,
         decimal? expenseRatio)
     {
         var errors = new List<ValidationError>();
         Ticker(errors, nameof(ticker), ticker);
-        Currency(errors, nameof(currency), currency, optional: true);
+        MaxLength(errors, nameof(name), name, 200);
+        MaxLength(errors, nameof(exchange), exchange, 50);
         MaxLength(errors, nameof(isin), isin, 12);
+        Currency(errors, nameof(currency), currency, optional: true);
         if (expenseRatio is < 0 or > 100)
         {
             errors.Add(new ValidationError(nameof(expenseRatio), "ExpenseRatio must be between zero and 100."));
@@ -259,11 +263,11 @@ public abstract class ETFRequestValidatorBase(IClock clock) : RequestValidatorBa
 public sealed class CreateETFRequestValidator(IClock clock) : ETFRequestValidatorBase(clock), IRequestValidator<CreateETFRequest>
 {
     public IReadOnlyList<ValidationError> Validate(CreateETFRequest request) =>
-        ValidateETF(request.Ticker, request.Isin, request.Currency, request.ExpenseRatio);
+        ValidateETF(request.Ticker, request.Name, request.Exchange, request.Isin, request.Currency, request.ExpenseRatio);
 }
 
 public sealed class UpdateETFRequestValidator(IClock clock) : ETFRequestValidatorBase(clock), IRequestValidator<UpdateETFRequest>
 {
     public IReadOnlyList<ValidationError> Validate(UpdateETFRequest request) =>
-        ValidateETF(request.Ticker, request.Isin, request.Currency, request.ExpenseRatio);
+        ValidateETF(request.Ticker, request.Name, request.Exchange, request.Isin, request.Currency, request.ExpenseRatio);
 }

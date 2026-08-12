@@ -122,3 +122,25 @@ export interface PortfolioSummary {
   missingPriceTickers: string[]
   holdings: HoldingSummary[]
 }
+
+export interface ETF {
+  id: number
+  ticker: string
+  name: string | null
+  exchange: string | null
+  isin: string | null
+  currency: string | null
+  expenseRatio: number | null
+  createdAt: string
+}
+
+export interface CreateETFRequest {
+  ticker: string
+  name: string | null
+  exchange: string | null
+  isin: string | null
+  currency: string | null
+  expenseRatio: number | null
+}
+
+export type UpdateETFRequest = CreateETFRequest
