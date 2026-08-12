@@ -22,6 +22,7 @@ builder.Services.AddScoped<IRequestValidator<CreatePortfolioRequest>, CreatePort
 builder.Services.AddScoped<IRequestValidator<UpdatePortfolioRequest>, UpdatePortfolioRequestValidator>();
 builder.Services.AddScoped<IRequestValidator<CreateTradeRequest>, CreateTradeRequestValidator>();
 builder.Services.AddScoped<IRequestValidator<UpdateTradeRequest>, UpdateTradeRequestValidator>();
+builder.Services.AddSingleton<BetTracker.ApiService.Features.Trades.FifoAccountingCalculator>();
 builder.Services.AddScoped<IRequestValidator<CreatePriceObservationRequest>, CreatePriceObservationRequestValidator>();
 builder.Services.AddScoped<IRequestValidator<UpdatePriceObservationRequest>, UpdatePriceObservationRequestValidator>();
 builder.Services.AddScoped<IRequestValidator<CreateETFRequest>, CreateETFRequestValidator>();

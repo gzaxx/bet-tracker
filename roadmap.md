@@ -6,7 +6,7 @@ Existing `BACKEND_PLAN.md` and `FRONTEND_PLAN.md` are reference material only. T
 
 ## Current phase
 
-**Phase 3 — Trades and FIFO Accounting**
+**Phase 4 — Manual Price History**
 
 After completing a phase, update this section to the next incomplete phase and record the verification command/results in the phase's handoff notes.
 
@@ -228,7 +228,7 @@ Phase 2 verification completed on 2026-08-11:
 
 # Phase 3 — Trades and FIFO Accounting
 
-**Status:** Current
+**Status:** Complete
 
 ## Goal
 
@@ -271,6 +271,19 @@ Tests cover:
 - Multiple tickers and portfolios.
 
 The UI completes create, edit, list, and delete against the real API. Set the current phase to Phase 4 only after accounting tests and the frontend build pass.
+
+## Handoff
+
+Phase 3 verification completed on 2026-08-12:
+
+- `/api/v1/portfolios/{portfolioId}/trades` supports list, get, create, update, and delete with normalized tickers, portfolio-currency enforcement, UTC timestamps, and RFC-compatible validation errors.
+- `FifoAccountingCalculator` sorts by `ExecutedAt` then trade ID, consumes per-ticker lots FIFO, includes buy commissions in cost basis, subtracts sell commissions from proceeds, and rejects negative positions. Mutations run inside transactions and recalculate the complete portfolio history.
+- `dotnet test tests/BetTracker.Api.Tests/BetTracker.Api.Tests.csproj --no-restore` passed: 24 tests.
+- `dotnet build BetTracker.sln --no-restore` passed with zero warnings and errors.
+- `npm run typecheck && npm run build` passed in `apps/bet-tracker-client`.
+- Browser smoke against the real API passed: selected a portfolio, created a 10-share MSFT buy with a $5 commission, created a 4-share MSFT sell with a $2 commission, displayed $1,005 invested, $478 proceeds, and 6 open shares, edited the buy to 9 shares, rejected deletion that would oversell, and deleted the sell.
+
+Phase 4 is now the current implementation phase.
 
 # Phase 4 — Manual Price History
 

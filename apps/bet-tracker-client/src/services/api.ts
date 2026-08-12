@@ -1,10 +1,13 @@
 import type {
   CreatePortfolioRequest,
   CreateProfileRequest,
+  CreateTradeRequest,
   Portfolio,
   Profile,
+  Trade,
   UpdatePortfolioRequest,
   UpdateProfileRequest,
+  UpdateTradeRequest,
 } from '../types/domain'
 
 export class ApiError extends Error {
@@ -56,4 +59,11 @@ export const portfolioApi = {
   create: (body: CreatePortfolioRequest) => request<Portfolio>('/api/v1/portfolios', { method: 'POST', body: JSON.stringify(body) }),
   update: (id: number, body: UpdatePortfolioRequest) => request<Portfolio>(`/api/v1/portfolios/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   remove: (id: number) => request<void>(`/api/v1/portfolios/${id}`, { method: 'DELETE' }),
+}
+
+export const tradeApi = {
+  list: (portfolioId: number) => request<Trade[]>(`/api/v1/portfolios/${portfolioId}/trades`),
+  create: (portfolioId: number, body: CreateTradeRequest) => request<Trade>(`/api/v1/portfolios/${portfolioId}/trades`, { method: 'POST', body: JSON.stringify(body) }),
+  update: (portfolioId: number, id: number, body: UpdateTradeRequest) => request<Trade>(`/api/v1/portfolios/${portfolioId}/trades/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  remove: (portfolioId: number, id: number) => request<void>(`/api/v1/portfolios/${portfolioId}/trades/${id}`, { method: 'DELETE' }),
 }
