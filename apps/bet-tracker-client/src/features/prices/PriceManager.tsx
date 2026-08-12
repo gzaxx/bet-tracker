@@ -48,7 +48,7 @@ const errorMessage = (caught: unknown): string => {
 const formatMoney = (value: number, currency: string) => value.toLocaleString(undefined, { style: 'currency', currency })
 const formatDate = (value: string) => new Date(value).toLocaleString()
 
-export const PriceManager = ({ portfolio }: { portfolio: Portfolio }) => {
+export const PriceManager = ({ portfolio, onChanged }: { portfolio: Portfolio; onChanged?: () => void }) => {
   const [ticker, setTicker] = useState('')
   const [current, setCurrent] = useState<PriceObservation | null>(null)
   const [history, setHistory] = useState<PriceObservation[]>([])
@@ -106,6 +106,7 @@ export const PriceManager = ({ portfolio }: { portfolio: Portfolio }) => {
       } else {
         await priceApi.update(editingId, body)
       }
+      onChanged?.()
       setForm(newForm())
       setEditingId(null)
       await loadPrices(body.ticker)
@@ -131,6 +132,7 @@ export const PriceManager = ({ portfolio }: { portfolio: Portfolio }) => {
     setError(null)
     try {
       await priceApi.remove(observation.id)
+      onChanged?.()
       await loadPrices(observation.ticker)
       if (editingId === observation.id) {
         setEditingId(null)
@@ -144,7 +146,7 @@ export const PriceManager = ({ portfolio }: { portfolio: Portfolio }) => {
   }
 
   return (
-    <section className="price-manager card">
+    <section className="price-manager card" id={`prices-${portfolio.id}`}>
       <div className="section-header">
         <div><p className="section-kicker">Manual prices</p><h2>Price history</h2><p className="muted">Enter prices in {portfolio.currency}; every observation is retained.</p></div>
         <span className="currency-chip">{portfolio.currency}</span>

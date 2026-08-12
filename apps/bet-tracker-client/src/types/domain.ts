@@ -101,3 +101,24 @@ export interface CreatePriceObservationRequest {
 export type UpdatePriceObservationRequest = Omit<CreatePriceObservationRequest, 'source'> & {
   source: string
 }
+
+export interface HoldingSummary {
+  ticker: string
+  shares: number
+  averageCost: number
+  costBasis: number
+  currentPrice: number | null
+  currentValue: number | null
+  unrealizedProfitLoss: number | null
+}
+
+export interface PortfolioSummary {
+  portfolioId: number
+  currency: string
+  totalCostBasis: number
+  totalMarketValue: number
+  realizedProfitLoss: number
+  unrealizedProfitLoss: number
+  missingPriceTickers: string[]
+  holdings: HoldingSummary[]
+}

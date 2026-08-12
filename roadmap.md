@@ -6,7 +6,7 @@ Existing `BACKEND_PLAN.md` and `FRONTEND_PLAN.md` are reference material only. T
 
 ## Current phase
 
-**Phase 5 — Portfolio Summary and P&L**
+**Phase 6 — POC Completion and Hardening**
 
 After completing a phase, update this section to the next incomplete phase and record the verification command/results in the phase's handoff notes.
 
@@ -346,7 +346,7 @@ Phase 5 is now the current implementation phase.
 
 # Phase 5 — Portfolio Summary and P&L
 
-**Status:** Pending
+**Status:** Complete
 
 ## Goal
 
@@ -385,9 +385,23 @@ create profile → create portfolio → add buy → add sell → add price → v
 
 Set the current phase to Phase 6 after backend integration tests, frontend build, and the full smoke path pass.
 
+## Handoff
+
+Phase 5 verification completed on 2026-08-12:
+
+- `/api/v1/portfolios/{portfolioId}/summary` returns FIFO holdings, average cost, cost basis, current values, realized P&L, unrealized P&L, and explicit missing-price tickers in the portfolio currency.
+- Summary pricing uses the newest non-future manual observation per ticker and excludes missing-price holdings from market-value and unrealized-P&L totals.
+- `Phase5ApiTests` covers FIFO commissions, partial lots, realized and unrealized P&L, missing prices, portfolio scoping, and not-found behavior.
+- `dotnet test BetTracker.sln --no-restore` passed: 29 tests.
+- `dotnet build BetTracker.sln --no-restore` passed with zero warnings and errors.
+- `npm run typecheck && npm run build` passed in `apps/bet-tracker-client`.
+- Browser smoke against an isolated SQLite database passed: created a profile and portfolio, added a 10-share MSFT buy, added a 4-share MSFT sell, added a $130 manual price, and displayed 6 open shares, $603 cost basis, $780 current value, $76 realized P&L, and $177 unrealized P&L.
+
+Phase 6 is now the current implementation phase.
+
 # Phase 6 — POC Completion and Hardening
 
-**Status:** Pending Phase 5
+**Status:** Pending
 
 ## Goal
 

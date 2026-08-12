@@ -4,7 +4,11 @@ namespace BetTracker.ApiService.Features.Trades;
 
 public sealed record FifoAccountingResult(
     decimal RealizedGainLoss,
-    IReadOnlyDictionary<string, decimal> OpenPositions);
+    IReadOnlyDictionary<string, decimal> OpenPositions)
+{
+    public IReadOnlyDictionary<string, decimal> OpenCostBasis { get; init; } =
+        new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+}
 
 public sealed class InvalidTradeSequenceException(string message) : Exception(message);
 
@@ -63,8 +67,17 @@ public sealed class FifoAccountingCalculator
                 pair => pair.Key,
                 pair => pair.Value.Sum(lot => lot.RemainingShares),
                 StringComparer.OrdinalIgnoreCase);
+        var costBasisByTicker = lotsByTicker
+            .Where(pair => pair.Value.Count > 0)
+            .ToDictionary(
+                pair => pair.Key,
+                pair => pair.Value.Sum(lot => lot.RemainingCost),
+                StringComparer.OrdinalIgnoreCase);
 
-        return new FifoAccountingResult(realizedGainLoss, positions);
+        return new FifoAccountingResult(realizedGainLoss, positions)
+        {
+            OpenCostBasis = costBasisByTicker
+        };
     }
 
     private sealed class Lot(decimal remainingShares, decimal remainingCost)
