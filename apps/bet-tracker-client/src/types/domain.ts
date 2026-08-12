@@ -33,3 +33,47 @@ export interface CreatePortfolioRequest {
 export interface UpdatePortfolioRequest {
   name: string
 }
+
+export enum TradeType {
+  Buy = 0,
+  Sell = 1
+}
+
+export interface Trade {
+  id: number
+  portfolioId: number
+  ticker: string
+  tradeType: TradeType
+  shares: number
+  price: number
+  commission: number
+  executedAt: string
+  notes: string | null
+  isin: string | null
+  currency: string
+}
+
+export interface CreateTradeRequest {
+  portfolioId: number
+  ticker: string
+  tradeType: TradeType
+  shares: number
+  price: number
+  commission: number
+  executedAt: string
+  currency: string
+  notes: string | null
+  isin: string | null
+}
+
+export interface UpdateTradeRequest {
+  ticker: string
+  tradeType: TradeType
+  shares: number
+  price: number
+  commission: number
+  executedAt: string
+  currency: string
+  notes: string | null
+  isin: string | null
+}

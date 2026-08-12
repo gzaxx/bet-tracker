@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import './App.css'
 import { ProfileProvider, useProfiles } from './features/profiles/ProfileContext'
+import { TradeManager } from './features/trades/TradeManager'
 import type { Portfolio } from './types/domain'
 
 type DeleteTarget = { kind: 'profile' | 'portfolio'; id: number; label: string }
@@ -143,7 +144,7 @@ const NewProfileForm = () => {
   )
 }
 
-const PortfolioCard = ({ portfolio, onDelete }: { portfolio: Portfolio; onDelete: (portfolio: Portfolio) => void }) => {
+const PortfolioCard = ({ portfolio, onDelete, onSelect, selected }: { portfolio: Portfolio; onDelete: (portfolio: Portfolio) => void; onSelect: (portfolio: Portfolio) => void; selected: boolean }) => {
   const { updatePortfolio } = useProfiles()
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(portfolio.name)
@@ -160,7 +161,7 @@ const PortfolioCard = ({ portfolio, onDelete }: { portfolio: Portfolio; onDelete
   }
 
   return (
-    <article className="portfolio-card">
+    <article className={`portfolio-card${selected ? ' portfolio-card-selected' : ''}`}>
       {editing ? (
         <form onSubmit={submit}>
           <label htmlFor={`portfolio-${portfolio.id}-name`}>Portfolio name</label>
@@ -169,9 +170,11 @@ const PortfolioCard = ({ portfolio, onDelete }: { portfolio: Portfolio; onDelete
         </form>
       ) : (
         <>
-          <div className="portfolio-icon" aria-hidden="true">↗</div>
-          <div className="portfolio-details"><h3>{portfolio.name}</h3><p className="muted">Currency</p><p className="currency-value">{portfolio.currency}</p></div>
-          <div className="button-row"><button type="button" className="button button-subtle" onClick={() => setEditing(true)}>Edit</button><button type="button" className="button button-danger-ghost" onClick={() => onDelete(portfolio)}>Delete</button></div>
+          <button type="button" className="portfolio-select" onClick={() => onSelect(portfolio)} aria-pressed={selected}>
+            <span className="portfolio-icon" aria-hidden="true">↗</span>
+            <span className="portfolio-details"><strong>{portfolio.name}</strong><span className="muted">Currency</span><span className="currency-value">{portfolio.currency}</span></span>
+          </button>
+          <div className="button-row"><button type="button" className="button button-primary" onClick={() => onSelect(portfolio)}>{selected ? 'Selected' : 'View trades'}</button><button type="button" className="button button-subtle" onClick={() => setEditing(true)}>Edit</button><button type="button" className="button button-danger-ghost" onClick={() => onDelete(portfolio)}>Delete</button></div>
         </>
       )}
     </article>
@@ -192,6 +195,7 @@ const Confirmation = ({ target, onCancel, onConfirm, submitting }: { target: Del
 const Dashboard = () => {
   const { profiles, activeProfile, activeProfileId, portfolios, selectProfile, createPortfolio, deleteProfile, deletePortfolio } = useProfiles()
   const [portfolioName, setPortfolioName] = useState('')
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | null>(null)
   const [creatingPortfolio, setCreatingPortfolio] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<DeleteTarget | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -201,6 +205,7 @@ const Dashboard = () => {
   }
 
   const activePortfolios = portfolios.filter((portfolio) => portfolio.profileId === activeProfile.id)
+  const selectedPortfolio = activePortfolios.find((portfolio) => portfolio.id === selectedPortfolioId)
 
   const submitPortfolio = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -220,6 +225,9 @@ const Dashboard = () => {
     const deleted = pendingDelete.kind === 'profile' ? await deleteProfile(pendingDelete.id) : await deletePortfolio(pendingDelete.id)
     setDeleting(false)
     if (deleted) {
+      if (pendingDelete.kind === 'portfolio' && pendingDelete.id === selectedPortfolioId) {
+        setSelectedPortfolioId(null)
+      }
       setPendingDelete(null)
     }
   }
@@ -228,14 +236,15 @@ const Dashboard = () => {
     <main className="shell dashboard-shell">
       <header className="topbar">
         <div><p className="eyebrow">Local proof of concept</p><h1>Bet Tracker</h1></div>
-        <label className="profile-switcher">Active profile<select value={activeProfile.id} onChange={(event) => selectProfile(Number(event.target.value))}>{profiles.map((profile) => <option value={profile.id} key={profile.id}>{profile.name} · {profile.defaultCurrency}</option>)}</select></label>
+        <label className="profile-switcher">Active profile<select value={activeProfile.id} onChange={(event) => { setSelectedPortfolioId(null); selectProfile(Number(event.target.value)) }}>{profiles.map((profile) => <option value={profile.id} key={profile.id}>{profile.name} · {profile.defaultCurrency}</option>)}</select></label>
       </header>
       <ErrorBanner />
       <ProfileSettings />
       <section className="portfolio-section">
         <div className="section-header"><div><p className="section-kicker">Dashboard</p><h2>Portfolios</h2><p className="muted">Every portfolio reports in {activeProfile.defaultCurrency}.</p></div><button type="button" className="button button-danger-ghost" onClick={() => setPendingDelete({ kind: 'profile', id: activeProfile.id, label: `profile “${activeProfile.name}”` })}>Delete profile</button></div>
-        {activePortfolios.length === 0 ? <div className="empty-state"><h3>No portfolios yet</h3><p>Create a portfolio to begin recording trades.</p></div> : <div className="portfolio-grid">{activePortfolios.map((portfolio) => <PortfolioCard portfolio={portfolio} onDelete={(candidate) => setPendingDelete({ kind: 'portfolio', id: candidate.id, label: `portfolio “${candidate.name}”` })} key={portfolio.id} />)}</div>}
+        {activePortfolios.length === 0 ? <div className="empty-state"><h3>No portfolios yet</h3><p>Create a portfolio to begin recording trades.</p></div> : <div className="portfolio-grid">{activePortfolios.map((portfolio) => <PortfolioCard portfolio={portfolio} selected={portfolio.id === selectedPortfolioId} onSelect={(candidate) => setSelectedPortfolioId(candidate.id)} onDelete={(candidate) => setPendingDelete({ kind: 'portfolio', id: candidate.id, label: `portfolio “${candidate.name}”` })} key={portfolio.id} />)}</div>}
         <form className="card compact-form" onSubmit={submitPortfolio}><div className="form-heading"><div><p className="section-kicker">New portfolio</p><h2>Create a portfolio</h2></div><span className="currency-chip">{activeProfile.defaultCurrency}</span></div><div className="inline-fields"><label>Portfolio name<input value={portfolioName} onChange={(event) => setPortfolioName(event.target.value)} placeholder="Long term" required maxLength={100} /></label><button className="button button-primary" type="submit" disabled={creatingPortfolio}>{creatingPortfolio ? 'Creating…' : 'Create portfolio'}</button></div><p className="form-note">Currency is copied from the profile and cannot be edited.</p></form>
+        {selectedPortfolio && <TradeManager portfolio={selectedPortfolio} />}
       </section>
       <NewProfileForm />
       {pendingDelete && <Confirmation target={pendingDelete} onCancel={() => setPendingDelete(null)} onConfirm={() => void confirmDelete()} submitting={deleting} />}

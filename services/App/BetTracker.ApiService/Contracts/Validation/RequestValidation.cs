@@ -63,6 +63,14 @@ public abstract class RequestValidatorBase(IClock clock)
         }
     }
 
+    protected static void TradeKind(ICollection<ValidationError> errors, string field, TradeType value)
+    {
+        if (!Enum.IsDefined(value))
+        {
+            errors.Add(new ValidationError(field, $"{field} must be Buy or Sell."));
+        }
+    }
+
     protected static void Name(ICollection<ValidationError> errors, string field, string? value)
     {
         Required(errors, field, value);
@@ -138,6 +146,7 @@ public abstract class TradeRequestValidatorBase(IClock clock) : RequestValidator
 {
     protected IReadOnlyList<ValidationError> ValidateTrade(
         string ticker,
+        TradeType tradeType,
         decimal shares,
         decimal price,
         decimal commission,
@@ -146,6 +155,7 @@ public abstract class TradeRequestValidatorBase(IClock clock) : RequestValidator
     {
         var errors = new List<ValidationError>();
         Ticker(errors, nameof(ticker), ticker);
+        TradeKind(errors, nameof(tradeType), tradeType);
         Currency(errors, nameof(currency), currency);
         if (shares <= 0)
         {
@@ -169,14 +179,22 @@ public abstract class TradeRequestValidatorBase(IClock clock) : RequestValidator
 
 public sealed class CreateTradeRequestValidator(IClock clock) : TradeRequestValidatorBase(clock), IRequestValidator<CreateTradeRequest>
 {
-    public IReadOnlyList<ValidationError> Validate(CreateTradeRequest request) =>
-        ValidateTrade(request.Ticker, request.Shares, request.Price, request.Commission, request.ExecutedAt, request.Currency);
+    public IReadOnlyList<ValidationError> Validate(CreateTradeRequest request)
+    {
+        var errors = ValidateTrade(request.Ticker, request.TradeType, request.Shares, request.Price, request.Commission, request.ExecutedAt, request.Currency);
+        if (request.PortfolioId <= 0)
+        {
+            errors = errors.Append(new ValidationError(nameof(request.PortfolioId), "PortfolioId must be greater than zero.")).ToArray();
+        }
+
+        return errors;
+    }
 }
 
 public sealed class UpdateTradeRequestValidator(IClock clock) : TradeRequestValidatorBase(clock), IRequestValidator<UpdateTradeRequest>
 {
     public IReadOnlyList<ValidationError> Validate(UpdateTradeRequest request) =>
-        ValidateTrade(request.Ticker, request.Shares, request.Price, request.Commission, request.ExecutedAt, request.Currency);
+        ValidateTrade(request.Ticker, request.TradeType, request.Shares, request.Price, request.Commission, request.ExecutedAt, request.Currency);
 }
 
 public abstract class PriceObservationRequestValidatorBase(IClock clock) : RequestValidatorBase(clock)
