@@ -110,3 +110,22 @@ public sealed record UpdateETFRequest(
     string? Isin,
     string? Currency,
     decimal? ExpenseRatio);
+
+public sealed record PortfolioSummaryDto(
+    int PortfolioId,
+    string Currency,
+    decimal TotalCostBasis,
+    decimal TotalMarketValue,
+    decimal RealizedProfitLoss,
+    decimal UnrealizedProfitLoss,
+    IReadOnlyList<string> MissingPriceTickers,
+    IReadOnlyList<HoldingSummaryDto> Holdings);
+
+public sealed record HoldingSummaryDto(
+    string Ticker,
+    decimal Shares,
+    decimal AverageCost,
+    decimal CostBasis,
+    decimal? CurrentPrice,
+    decimal? CurrentValue,
+    decimal? UnrealizedProfitLoss);

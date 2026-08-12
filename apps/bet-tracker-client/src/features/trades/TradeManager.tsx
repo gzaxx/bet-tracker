@@ -59,7 +59,7 @@ const formFromTrade = (trade: Trade): TradeFormState => ({
 
 const formatMoney = (value: number, currency: string) => value.toLocaleString(undefined, { style: 'currency', currency })
 
-export const TradeManager = ({ portfolio }: { portfolio: Portfolio }) => {
+export const TradeManager = ({ portfolio, onChanged }: { portfolio: Portfolio; onChanged?: () => void }) => {
   const [trades, setTrades] = useState<Trade[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -122,6 +122,7 @@ export const TradeManager = ({ portfolio }: { portfolio: Portfolio }) => {
         ? await tradeApi.create(portfolio.id, { portfolioId: portfolio.id, ...common } satisfies CreateTradeRequest)
         : await tradeApi.update(portfolio.id, editingId, common satisfies UpdateTradeRequest)
       setTrades((current) => editingId === null ? [...current, saved].sort((left, right) => left.executedAt.localeCompare(right.executedAt) || left.id - right.id) : current.map((trade) => trade.id === saved.id ? saved : trade).sort((left, right) => left.executedAt.localeCompare(right.executedAt) || left.id - right.id))
+      onChanged?.()
       setEditingId(null)
       setForm(newForm())
     } catch (caught: unknown) {
@@ -140,7 +141,7 @@ export const TradeManager = ({ portfolio }: { portfolio: Portfolio }) => {
     setError(null)
     try {
       await tradeApi.remove(portfolio.id, id)
-      setTrades((current) => current.filter((trade) => trade.id !== id))
+      onChanged?.()
     } catch (caught: unknown) {
       setError(errorMessage(caught))
     } finally {

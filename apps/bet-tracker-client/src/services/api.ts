@@ -4,6 +4,7 @@ import type {
   CreateProfileRequest,
   CreateTradeRequest,
   Portfolio,
+  PortfolioSummary,
   PriceObservation,
   Profile,
   Trade,
@@ -77,4 +78,9 @@ export const priceApi = {
   create: (body: CreatePriceObservationRequest) => request<PriceObservation>('/api/v1/prices', { method: 'POST', body: JSON.stringify(body) }),
   update: (id: number, body: UpdatePriceObservationRequest) => request<PriceObservation>(`/api/v1/prices/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   remove: (id: number) => request<void>(`/api/v1/prices/${id}`, { method: 'DELETE' }),
+}
+
+
+export const summaryApi = {
+  get: (portfolioId: number) => request<PortfolioSummary>(`/api/v1/portfolios/${portfolioId}/summary`),
 }
