@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using JasperFx.CodeGeneration;
+using JasperFx.CodeGeneration.Model;
 using Wolverine;
 using Wolverine.Http;
 using BetTracker.ApiService.Common.Time;
@@ -37,12 +38,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddWolverineHttp();
 builder.Services.AddWolverine(opts =>
-    opts.CodeGeneration.TypeLoadMode = builder.Environment.IsEnvironment("Testing")
-        ? TypeLoadMode.Static
-        : TypeLoadMode.Dynamic);
+{
+    opts.CodeGeneration.TypeLoadMode = TypeLoadMode.Dynamic;
+    opts.ServiceLocationPolicy = ServiceLocationPolicy.AllowedButWarn;
+});
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

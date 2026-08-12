@@ -125,6 +125,11 @@ public sealed class UpdatePortfolioRequestValidator(IClock clock) : RequestValid
     {
         var errors = new List<ValidationError>();
         Name(errors, nameof(request.Name), request.Name);
+        if (request.Currency is not null)
+        {
+            Currency(errors, nameof(request.Currency), request.Currency);
+        }
+
         return errors;
     }
 }

@@ -9,10 +9,28 @@ namespace BetTracker.Api.Tests;
 
 public sealed class ApiWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly string databasePath = Path.Combine(Path.GetTempPath(), $"bet-tracker-tests-{Guid.NewGuid():N}.db");
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
-        builder.UseSetting("ConnectionStrings:BetTracker", "Data Source=:memory:");
+        builder.UseSetting("ConnectionStrings:BetTracker", $"Data Source={databasePath}");
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing && File.Exists(databasePath))
+        {
+            try
+            {
+                File.Delete(databasePath);
+            }
+            catch (IOException)
+            {
+                // SQLite may release its final file handle after the host is disposed.
+            }
+        }
     }
 }
 

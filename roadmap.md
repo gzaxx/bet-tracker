@@ -6,7 +6,7 @@ Existing `BACKEND_PLAN.md` and `FRONTEND_PLAN.md` are reference material only. T
 
 ## Current phase
 
-**Phase 2 — Profiles and Portfolios**
+**Phase 3 — Trades and FIFO Accounting**
 
 After completing a phase, update this section to the next incomplete phase and record the verification command/results in the phase's handoff notes.
 
@@ -177,11 +177,11 @@ Phase 1 verification completed on 2026-08-11:
 - `dotnet test BetTracker.sln --no-restore` passed: 8 tests.
 - `npm run typecheck && npm run build` passed in `apps/bet-tracker-client`.
 
-Phase 2 is now the current implementation phase.
+Phase 2 is complete. Phase 3 is now the current implementation phase.
 
 # Phase 2 — Profiles and Portfolios
 
-**Status:** Current
+**Status:** Complete
 
 ## Goal
 
@@ -217,11 +217,18 @@ Frontend:
 
 ## Handoff
 
-Record the verified profile-to-portfolio smoke path. Set the current phase to Phase 3 after it passes from an empty database.
+Phase 2 verification completed on 2026-08-11:
+
+- Backend profile and portfolio endpoints live under `/api/v1/profiles` and `/api/v1/portfolios`, return bare DTOs/arrays, and use `201`, `200`, `204`, `400`, `404`, and `409` responses as applicable.
+- New portfolios copy the profile default currency. Update requests reject a changed portfolio currency, while profile deletion remains an explicit `DELETE` command with database cascade behavior.
+- `Phase2ApiTests` covers creation/currency copy, validation, not-found, duplicate, immutable currency, profile cascade, and full CRUD behavior.
+- `dotnet test tests/BetTracker.Api.Tests/BetTracker.Api.Tests.csproj --no-restore` passed: 13 tests.
+- `npm run typecheck && npm run build` passed in `apps/bet-tracker-client`.
+- Browser smoke from an empty local database passed: create profile and portfolio, create/select a second profile, refresh with selected profile restored, and display portfolio currency with delete confirmation controls.
 
 # Phase 3 — Trades and FIFO Accounting
 
-**Status:** Pending Phase 2
+**Status:** Current
 
 ## Goal
 
