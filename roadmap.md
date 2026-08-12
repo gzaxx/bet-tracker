@@ -6,7 +6,7 @@ Existing `BACKEND_PLAN.md` and `FRONTEND_PLAN.md` are reference material only. T
 
 ## Current phase
 
-**Phase 4 — Manual Price History**
+**Phase 5 — Portfolio Summary and P&L**
 
 After completing a phase, update this section to the next incomplete phase and record the verification command/results in the phase's handoff notes.
 
@@ -287,7 +287,8 @@ Phase 4 is now the current implementation phase.
 
 # Phase 4 — Manual Price History
 
-**Status:** Pending Phase 3
+**Status:** Complete
+
 
 ## Goal
 
@@ -327,13 +328,25 @@ Rules:
 - Current-price selection ignores future observations.
 - History retains multiple observations for one ticker/currency.
 - Portfolio currency validation is enforced.
-- The frontend build passes.
 
-Set the current phase to Phase 5 after API and UI tests pass.
+## Handoff
+
+Phase 4 verification completed on 2026-08-12:
+
+- `/api/v1/prices/{ticker}` returns the newest non-future observation or JSON `null`; history is retained and ordered newest first.
+- Manual price observations support create, update, and delete. Future timestamps and currencies not represented by an existing portfolio are rejected.
+- `Phase4ApiTests` covers retained history, current-price selection, future timestamp rejection, CRUD, missing current values, and portfolio-currency validation.
+- `dotnet test BetTracker.sln --no-restore` passed: 27 tests.
+- `dotnet build BetTracker.sln --no-restore` passed with zero warnings and errors.
+- `npm run typecheck && npm run build` passed in `apps/bet-tracker-client`.
+- Browser smoke against the real API passed: selected an existing USD portfolio, added a manual MSFT price, loaded history, and displayed the current price and `Manual` source.
+
+Phase 5 is now the current implementation phase.
+
 
 # Phase 5 — Portfolio Summary and P&L
 
-**Status:** Pending Phase 4
+**Status:** Pending
 
 ## Goal
 

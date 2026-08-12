@@ -1,11 +1,14 @@
 import type {
   CreatePortfolioRequest,
+  CreatePriceObservationRequest,
   CreateProfileRequest,
   CreateTradeRequest,
   Portfolio,
+  PriceObservation,
   Profile,
   Trade,
   UpdatePortfolioRequest,
+  UpdatePriceObservationRequest,
   UpdateProfileRequest,
   UpdateTradeRequest,
 } from '../types/domain'
@@ -66,4 +69,12 @@ export const tradeApi = {
   create: (portfolioId: number, body: CreateTradeRequest) => request<Trade>(`/api/v1/portfolios/${portfolioId}/trades`, { method: 'POST', body: JSON.stringify(body) }),
   update: (portfolioId: number, id: number, body: UpdateTradeRequest) => request<Trade>(`/api/v1/portfolios/${portfolioId}/trades/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   remove: (portfolioId: number, id: number) => request<void>(`/api/v1/portfolios/${portfolioId}/trades/${id}`, { method: 'DELETE' }),
+}
+
+export const priceApi = {
+  current: (ticker: string, currency: string) => request<PriceObservation | null>(`/api/v1/prices/${encodeURIComponent(ticker)}?currency=${encodeURIComponent(currency)}`),
+  history: (ticker: string, currency: string) => request<PriceObservation[]>(`/api/v1/prices/${encodeURIComponent(ticker)}/history?currency=${encodeURIComponent(currency)}`),
+  create: (body: CreatePriceObservationRequest) => request<PriceObservation>('/api/v1/prices', { method: 'POST', body: JSON.stringify(body) }),
+  update: (id: number, body: UpdatePriceObservationRequest) => request<PriceObservation>(`/api/v1/prices/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  remove: (id: number) => request<void>(`/api/v1/prices/${id}`, { method: 'DELETE' }),
 }

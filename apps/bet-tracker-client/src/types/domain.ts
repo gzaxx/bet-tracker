@@ -77,3 +77,27 @@ export interface UpdateTradeRequest {
   notes: string | null
   isin: string | null
 }
+
+export interface PriceObservation {
+  id: number
+  ticker: string
+  currency: string
+  price: number
+  effectiveAt: string
+  createdAt: string
+  source: string
+  providerSymbol: string | null
+}
+
+export interface CreatePriceObservationRequest {
+  ticker: string
+  currency: string
+  price: number
+  effectiveAt: string
+  source: string
+  providerSymbol: string | null
+}
+
+export type UpdatePriceObservationRequest = Omit<CreatePriceObservationRequest, 'source'> & {
+  source: string
+}
