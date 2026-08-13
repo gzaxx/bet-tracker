@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { Alert, Badge, Button, Card, Divider, Grid, Group, NativeSelect, NumberInput, Paper, SimpleGrid, Skeleton, Stack, Table, Text, TextInput, Textarea, Title } from '@mantine/core'
+import { IconArrowDownRight, IconArrowUpRight, IconRefresh, IconTrash } from '@tabler/icons-react'
 import { ApiError, tradeApi } from '../../services/api'
 import { TradeType, type CreateTradeRequest, type Portfolio, type Trade, type UpdateTradeRequest } from '../../types/domain'
 
@@ -141,6 +143,7 @@ export const TradeManager = ({ portfolio, onChanged }: { portfolio: Portfolio; o
     setError(null)
     try {
       await tradeApi.remove(portfolio.id, id)
+      setTrades((current) => current.filter((trade) => trade.id !== id))
       onChanged?.()
     } catch (caught: unknown) {
       setError(errorMessage(caught))
@@ -150,32 +153,33 @@ export const TradeManager = ({ portfolio, onChanged }: { portfolio: Portfolio; o
   }
 
   return (
-    <section className="card trade-manager" aria-labelledby={`trades-${portfolio.id}`}>
-      <div className="section-header">
-        <div><p className="section-kicker">{portfolio.name}</p><h2 id={`trades-${portfolio.id}`}>Trades</h2><p className="muted">FIFO inventory · {portfolio.currency}</p></div>
-        <button type="button" className="button button-subtle" onClick={() => void refresh()} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</button>
-      </div>
-      {error && <div className="alert alert-error" role="alert"><span>{error}</span><button type="button" className="button button-subtle" onClick={() => void refresh()}>Retry</button></div>}
-      <div className="trade-totals">
-        <div><span>Invested</span><strong>{formatMoney(totals.invested, portfolio.currency)}</strong></div>
-        <div><span>Proceeds</span><strong>{formatMoney(totals.proceeds, portfolio.currency)}</strong></div>
-        <div><span>Open shares</span><strong>{totals.position.toLocaleString()}</strong></div>
-      </div>
-      {loading ? <p className="muted">Loading trades…</p> : trades.length === 0 ? <div className="empty-state"><h3>No trades yet</h3><p>Add a buy to start a FIFO position.</p></div> : <div className="trade-table-wrap"><table className="trade-table"><thead><tr><th>Date</th><th>Ticker</th><th>Type</th><th>Shares</th><th>Price</th><th>Commission</th><th aria-label="Actions" /></tr></thead><tbody>{trades.map((trade) => <tr key={trade.id}><td>{new Date(trade.executedAt).toLocaleString()}</td><td><strong>{trade.ticker}</strong></td><td><span className={`trade-badge trade-${trade.tradeType === TradeType.Buy ? 'buy' : 'sell'}`}>{trade.tradeType === TradeType.Buy ? 'Buy' : 'Sell'}</span></td><td>{trade.shares}</td><td>{formatMoney(trade.price, trade.currency)}</td><td>{formatMoney(trade.commission, trade.currency)}</td><td><div className="button-row"><button type="button" className="button button-subtle" onClick={() => { setEditingId(trade.id); setForm(formFromTrade(trade)); }}>Edit</button><button type="button" className="button button-danger-ghost" onClick={() => void remove(trade.id)} disabled={deletingId === trade.id}>{deletingId === trade.id ? 'Deleting…' : 'Delete'}</button></div></td></tr>)}</tbody></table></div>}
-      <form className="trade-form" onSubmit={submit}>
-        <div className="form-heading"><div><p className="section-kicker">{editingId === null ? 'New trade' : 'Edit trade'}</p><h3>{editingId === null ? 'Record a trade' : `Edit trade #${editingId}`}</h3></div>{editingId !== null && <button type="button" className="button button-subtle" onClick={() => { setEditingId(null); setForm(newForm()); }}>Cancel</button>}</div>
-        <div className="trade-form-grid">
-          <label>Ticker<input value={form.ticker} onChange={(event) => updateField('ticker', event.target.value.toUpperCase())} required maxLength={20} placeholder="MSFT" /></label>
-          <label>Type<select value={form.tradeType} onChange={(event) => updateField('tradeType', Number(event.target.value) as TradeType)}><option value={TradeType.Buy}>Buy</option><option value={TradeType.Sell}>Sell</option></select></label>
-          <label>Shares<input type="number" min="0.00000001" step="any" value={form.shares} onChange={(event) => updateField('shares', event.target.value)} required /></label>
-          <label>Price ({portfolio.currency})<input type="number" min="0.0001" step="any" value={form.price} onChange={(event) => updateField('price', event.target.value)} required /></label>
-          <label>Commission ({portfolio.currency})<input type="number" min="0" step="any" value={form.commission} onChange={(event) => updateField('commission', event.target.value)} required /></label>
-          <label>Executed at<input type="datetime-local" value={form.executedAt} onChange={(event) => updateField('executedAt', event.target.value)} required /></label>
-          <label>ISIN (optional)<input value={form.isin} onChange={(event) => updateField('isin', event.target.value.toUpperCase())} maxLength={12} /></label>
-          <label>Notes (optional)<input value={form.notes} onChange={(event) => updateField('notes', event.target.value)} maxLength={2000} /></label>
-        </div>
-        <button className="button button-primary" type="submit" disabled={submitting}>{submitting ? 'Saving…' : editingId === null ? 'Add trade' : 'Save trade'}</button>
+    <Card id="trades" withBorder radius="lg" padding="xl" aria-labelledby={`trades-${portfolio.id}`}>
+      <Group justify="space-between" align="flex-start" mb="lg">
+        <div><Group gap="xs" mb={4}><Badge variant="light" color="cyan">{portfolio.name}</Badge><Badge variant="outline" color="gray">{portfolio.currency}</Badge></Group><Title order={2} size="h3" id={`trades-${portfolio.id}`}>Trades</Title><Text size="sm" c="dimmed">FIFO inventory and transaction history.</Text></div>
+        <Button variant="light" size="sm" leftSection={<IconRefresh size={15} />} onClick={() => void refresh()} loading={loading}>Refresh</Button>
+      </Group>
+      {error && <Alert color="red" title="Trade action failed" mb="lg" withCloseButton onClose={() => setError(null)}>{error}</Alert>}
+      <SimpleGrid cols={{ base: 1, xs: 3 }} mb="xl">
+        <Paper withBorder p="md" radius="md"><Text size="xs" fw={700} c="dimmed" tt="uppercase">Invested</Text><Text size="lg" fw={800} mt={5}>{formatMoney(totals.invested, portfolio.currency)}</Text></Paper>
+        <Paper withBorder p="md" radius="md"><Text size="xs" fw={700} c="dimmed" tt="uppercase">Proceeds</Text><Text size="lg" fw={800} mt={5}>{formatMoney(totals.proceeds, portfolio.currency)}</Text></Paper>
+        <Paper withBorder p="md" radius="md"><Text size="xs" fw={700} c="dimmed" tt="uppercase">Open shares</Text><Text size="lg" fw={800} mt={5}>{totals.position.toLocaleString()}</Text></Paper>
+      </SimpleGrid>
+      {loading ? <Stack gap="xs"><Skeleton height={42} /><Skeleton height={42} /><Skeleton height={42} /></Stack> : trades.length === 0 ? <Paper withBorder p="xl" radius="md" ta="center" mb="xl"><Title order={3} size="h4">No trades yet</Title><Text size="sm" c="dimmed">Add a buy below to start a FIFO position.</Text></Paper> : <Table.ScrollContainer minWidth={720} mb="xl"><Table striped highlightOnHover><Table.Thead><Table.Tr><Table.Th>Date</Table.Th><Table.Th>Ticker</Table.Th><Table.Th>Type</Table.Th><Table.Th>Shares</Table.Th><Table.Th>Price</Table.Th><Table.Th>Commission</Table.Th><Table.Th /></Table.Tr></Table.Thead><Table.Tbody>{trades.map((trade) => <Table.Tr key={trade.id}><Table.Td>{new Date(trade.executedAt).toLocaleString()}</Table.Td><Table.Td><Text fw={700}>{trade.ticker}</Text></Table.Td><Table.Td><Badge color={trade.tradeType === TradeType.Buy ? 'teal' : 'red'} variant="light" leftSection={trade.tradeType === TradeType.Buy ? <IconArrowUpRight size={12} /> : <IconArrowDownRight size={12} />}>{trade.tradeType === TradeType.Buy ? 'Buy' : 'Sell'}</Badge></Table.Td><Table.Td>{trade.shares}</Table.Td><Table.Td>{formatMoney(trade.price, trade.currency)}</Table.Td><Table.Td>{formatMoney(trade.commission, trade.currency)}</Table.Td><Table.Td><Group gap={4} justify="flex-end" wrap="nowrap"><Button size="xs" variant="subtle" onClick={() => { setEditingId(trade.id); setForm(formFromTrade(trade)) }}>Edit</Button><Button size="xs" variant="subtle" color="red" loading={deletingId === trade.id} aria-label={`Delete trade ${trade.ticker}`} onClick={() => void remove(trade.id)}><IconTrash size={15} /></Button></Group></Table.Td></Table.Tr>)}</Table.Tbody></Table></Table.ScrollContainer>}
+      <Divider mb="lg" />
+      <form onSubmit={submit}>
+        <Group justify="space-between" mb="md"><div><Text size="sm" fw={700} c="indigo" tt="uppercase">{editingId === null ? 'New trade' : 'Edit trade'}</Text><Title order={3} size="h4">{editingId === null ? 'Record a trade' : `Edit trade #${editingId}`}</Title></div>{editingId !== null && <Button type="button" variant="subtle" onClick={() => { setEditingId(null); setForm(newForm()) }}>Cancel</Button>}</Group>
+        <Grid gutter="sm">
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><TextInput label="Ticker" value={form.ticker} onChange={(event) => updateField('ticker', event.currentTarget.value.toUpperCase())} required maxLength={20} placeholder="MSFT" /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><NativeSelect label="Type" data={[{ value: String(TradeType.Buy), label: 'Buy' }, { value: String(TradeType.Sell), label: 'Sell' }]} value={String(form.tradeType)} onChange={(event) => updateField('tradeType', Number(event.currentTarget.value) as TradeType)} /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><NumberInput label="Shares" min={0.00000001} step={1} decimalScale={8} value={form.shares} onChange={(value) => updateField('shares', String(value))} required /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><NumberInput label={`Price (${portfolio.currency})`} min={0.0001} step={0.01} decimalScale={4} value={form.price} onChange={(value) => updateField('price', String(value))} required /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><NumberInput label={`Commission (${portfolio.currency})`} min={0} step={0.01} decimalScale={4} value={form.commission} onChange={(value) => updateField('commission', String(value))} required /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><TextInput type="datetime-local" label="Executed at" value={form.executedAt} onChange={(event) => updateField('executedAt', event.currentTarget.value)} required /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><TextInput label="ISIN (optional)" value={form.isin} onChange={(event) => updateField('isin', event.currentTarget.value.toUpperCase())} maxLength={12} /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><Textarea label="Notes (optional)" autosize minRows={1} maxRows={2} value={form.notes} onChange={(event) => updateField('notes', event.currentTarget.value)} maxLength={2000} /></Grid.Col>
+        </Grid>
+        <Group justify="flex-end" mt="md"><Button type="submit" loading={submitting}>{editingId === null ? 'Add trade' : 'Save trade'}</Button></Group>
       </form>
-    </section>
+    </Card>
   )
 }

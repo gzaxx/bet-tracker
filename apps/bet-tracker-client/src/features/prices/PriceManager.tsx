@@ -1,4 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import { Alert, Badge, Button, Card, Divider, Grid, Group, NumberInput, Paper, Skeleton, Stack, Table, Text, TextInput, Title } from '@mantine/core'
+import { IconClock, IconRefresh, IconSearch, IconTrash } from '@tabler/icons-react'
 import { ApiError, priceApi } from '../../services/api'
 import type { PriceObservation, Portfolio } from '../../types/domain'
 
@@ -146,40 +148,32 @@ export const PriceManager = ({ portfolio, onChanged }: { portfolio: Portfolio; o
   }
 
   return (
-    <section className="price-manager card" id={`prices-${portfolio.id}`}>
-      <div className="section-header">
-        <div><p className="section-kicker">Manual prices</p><h2>Price history</h2><p className="muted">Enter prices in {portfolio.currency}; every observation is retained.</p></div>
-        <span className="currency-chip">{portfolio.currency}</span>
-      </div>
-
-      {error && <div className="alert alert-error" role="alert"><span>{error}</span></div>}
-
-      <form className="price-form" onSubmit={submit}>
-        <div className="price-form-grid">
-          <label>Ticker<input value={form.ticker} onChange={(event) => setForm({ ...form, ticker: event.target.value })} placeholder="MSFT" required maxLength={20} /></label>
-          <label>Price<input type="number" min="0.0001" step="0.0001" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="100.00" required /></label>
-          <label>Effective at<input type="datetime-local" value={form.effectiveAt} onChange={(event) => setForm({ ...form, effectiveAt: event.target.value })} required /></label>
-          <label>Provider symbol <span className="muted">(optional)</span><input value={form.providerSymbol} onChange={(event) => setForm({ ...form, providerSymbol: event.target.value })} placeholder="NASDAQ:MSFT" maxLength={64} /></label>
-        </div>
-        <div className="button-row">
-          <button className="button button-primary" type="submit" disabled={saving}>{saving ? 'Saving…' : editingId === null ? 'Add price' : 'Save price'}</button>
-          {editingId !== null && <button className="button button-subtle" type="button" onClick={() => { setEditingId(null); setForm(newForm()) }}>Cancel edit</button>}
-        </div>
+    <Card id="prices" withBorder radius="lg" padding="xl" aria-labelledby={`prices-${portfolio.id}`}>
+      <Group justify="space-between" align="flex-start" mb="lg">
+        <div><Group gap="xs" mb={4}><Badge variant="light" color="violet">Market data</Badge><Badge variant="outline" color="gray">{portfolio.currency}</Badge></Group><Title order={2} size="h3" id={`prices-${portfolio.id}`}>Price history</Title><Text size="sm" c="dimmed">Enter prices manually and keep every observation for a clear audit trail.</Text></div>
+        <IconClock size={28} color="var(--mantine-color-violet-5)" />
+      </Group>
+      {error && <Alert color="red" title="Price action failed" mb="lg" withCloseButton onClose={() => setError(null)}>{error}</Alert>}
+      <form onSubmit={submit}>
+        <Grid gutter="sm">
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><TextInput label="Ticker" value={form.ticker} onChange={(event) => setForm({ ...form, ticker: event.currentTarget.value.toUpperCase() })} placeholder="MSFT" required maxLength={20} /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><NumberInput label={`Price (${portfolio.currency})`} min={0.0001} step={0.01} decimalScale={4} value={form.price} onChange={(value) => setForm({ ...form, price: String(value) })} placeholder="100.00" required /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><TextInput type="datetime-local" label="Effective at" value={form.effectiveAt} onChange={(event) => setForm({ ...form, effectiveAt: event.currentTarget.value })} required /></Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><TextInput label="Provider symbol (optional)" value={form.providerSymbol} onChange={(event) => setForm({ ...form, providerSymbol: event.currentTarget.value })} placeholder="NASDAQ:MSFT" maxLength={64} /></Grid.Col>
+        </Grid>
+        <Group justify="flex-end" mt="md"><Button type="submit" loading={saving}>{editingId === null ? 'Add price' : 'Save price'}</Button>{editingId !== null && <Button type="button" variant="subtle" onClick={() => { setEditingId(null); setForm(newForm()) }}>Cancel edit</Button>}</Group>
       </form>
-
-      <div className="price-lookup">
-        <label>View ticker history<input value={ticker} onChange={(event) => setTicker(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); void loadPrices() } }} placeholder="MSFT" /></label>
-        <button className="button button-secondary" type="button" onClick={() => void loadPrices()} disabled={loading}>{loading ? 'Loading…' : 'Load history'}</button>
-      </div>
-
-      {loading ? <p className="muted">Loading price history…</p> : normalizedTicker ? <>
-        <div className="current-price" aria-live="polite">
-          <span>Current price</span>
-          {current ? <strong>{formatMoney(current.price, portfolio.currency)}</strong> : <strong>Not available</strong>}
-          {current && <small>{isStale ? `Stale · ${formatDate(current.effectiveAt)}` : `As of ${formatDate(current.effectiveAt)}`}</small>}
-        </div>
-        {history.length === 0 ? <div className="empty-state"><h3>No observations yet</h3><p>Add a manual price to start this ticker’s history.</p></div> : <div className="trade-table-wrap"><table className="trade-table price-table"><thead><tr><th>Effective at</th><th>Price</th><th>Source</th><th aria-label="Actions" /></tr></thead><tbody>{history.map((observation) => <tr key={observation.id}><td>{formatDate(observation.effectiveAt)}</td><td>{formatMoney(observation.price, observation.currency)}</td><td>{observation.source}</td><td><div className="button-row"><button className="button button-subtle" type="button" onClick={() => edit(observation)}>Edit</button><button className="button button-danger-ghost" type="button" onClick={() => void remove(observation)} disabled={deletingId === observation.id}>{deletingId === observation.id ? 'Deleting…' : 'Delete'}</button></div></td></tr>)}</tbody></table></div>}
-      </> : <div className="empty-state"><h3>Choose a ticker</h3><p>Load a ticker to see its current price and retained observations.</p></div>}
-    </section>
+      <Divider my="xl" />
+      <Group align="flex-end" gap="sm" mb="lg">
+        <TextInput label="View ticker history" value={ticker} onChange={(event) => setTicker(event.currentTarget.value.toUpperCase())} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); void loadPrices() } }} placeholder="MSFT" leftSection={<IconSearch size={16} />} style={{ flex: 1 }} />
+        <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={() => void loadPrices()} loading={loading}>Load history</Button>
+      </Group>
+      {loading ? <Stack gap="xs"><Skeleton height={80} /><Skeleton height={42} /><Skeleton height={42} /></Stack> : normalizedTicker ? <Stack gap="lg">
+        <Paper withBorder p="lg" radius="md" className="price-highlight">
+          <Group justify="space-between" align="center"><div><Text size="xs" fw={700} c="dimmed" tt="uppercase">Current price · {normalizedTicker}</Text><Text size="xl" fw={800} mt={4}>{current ? formatMoney(current.price, portfolio.currency) : 'Not available'}</Text></div>{current && <Badge color={isStale ? 'yellow' : 'teal'} variant="light">{isStale ? `Stale · ${formatDate(current.effectiveAt)}` : `As of ${formatDate(current.effectiveAt)}`}</Badge>}</Group>
+        </Paper>
+        {history.length === 0 ? <Paper withBorder p="xl" radius="md" ta="center"><Title order={3} size="h4">No observations yet</Title><Text size="sm" c="dimmed">Add a manual price above to start this ticker’s history.</Text></Paper> : <Table.ScrollContainer minWidth={560}><Table striped highlightOnHover><Table.Thead><Table.Tr><Table.Th>Effective at</Table.Th><Table.Th>Price</Table.Th><Table.Th>Source</Table.Th><Table.Th /></Table.Tr></Table.Thead><Table.Tbody>{history.map((observation) => <Table.Tr key={observation.id}><Table.Td>{formatDate(observation.effectiveAt)}</Table.Td><Table.Td><Text fw={700}>{formatMoney(observation.price, observation.currency)}</Text></Table.Td><Table.Td><Badge variant="light" color="gray">{observation.source}</Badge></Table.Td><Table.Td><Group gap={4} justify="flex-end" wrap="nowrap"><Button size="xs" variant="subtle" onClick={() => edit(observation)}>Edit</Button><Button size="xs" variant="subtle" color="red" loading={deletingId === observation.id} aria-label={`Delete price for ${observation.ticker}`} onClick={() => void remove(observation)}><IconTrash size={15} /></Button></Group></Table.Td></Table.Tr>)}</Table.Tbody></Table></Table.ScrollContainer>}
+      </Stack> : <Paper withBorder p="xl" radius="md" ta="center"><Title order={3} size="h4">Choose a ticker</Title><Text size="sm" c="dimmed">Load a ticker to see its current price and retained observations.</Text></Paper>}
+    </Card>
   )
 }
