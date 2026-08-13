@@ -38,6 +38,29 @@ public sealed class Phase2ApiTests : IClassFixture<ApiWebApplicationFactory>
     }
 
     [Fact]
+    public async Task Profile_creation_defaults_currency_to_pln_when_omitted()
+    {
+        var profileName = $"PLN default {Guid.NewGuid():N}";
+        using var profileResponse = await client.PostAsJsonAsync(
+            "/api/v1/profiles",
+            new { name = profileName });
+
+        Assert.Equal(HttpStatusCode.Created, profileResponse.StatusCode);
+        var profile = await profileResponse.Content.ReadFromJsonAsync<ProfileDto>();
+        Assert.NotNull(profile);
+        Assert.Equal("PLN", profile.DefaultCurrency);
+
+        using var portfolioResponse = await client.PostAsJsonAsync(
+            "/api/v1/portfolios",
+            new CreatePortfolioRequest(profile.Id, "PLN portfolio"));
+
+        Assert.Equal(HttpStatusCode.Created, portfolioResponse.StatusCode);
+        var portfolio = await portfolioResponse.Content.ReadFromJsonAsync<PortfolioDto>();
+        Assert.NotNull(portfolio);
+        Assert.Equal("PLN", portfolio.Currency);
+    }
+
+    [Fact]
     public async Task Validation_not_found_and_duplicate_requests_return_problem_details()
     {
         using var invalidResponse = await client.PostAsJsonAsync(

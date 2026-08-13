@@ -50,7 +50,7 @@ public sealed record ETFDto(
     decimal? ExpenseRatio,
     DateTimeOffset CreatedAt);
 
-public sealed record CreateProfileRequest(string Name, string DefaultCurrency);
+public sealed record CreateProfileRequest(string Name, string DefaultCurrency = "PLN");
 public sealed record UpdateProfileRequest(string Name, string DefaultCurrency);
 
 public sealed record CreatePortfolioRequest(int ProfileId, string Name);

@@ -6,7 +6,7 @@ import { useProfiles } from '../profiles/ProfileContext'
 export const Onboarding = () => {
   const { createProfileAndPortfolio, error, refresh } = useProfiles()
   const [profileName, setProfileName] = useState('')
-  const [currency, setCurrency] = useState('USD')
+  const [currency, setCurrency] = useState('PLN')
   const [portfolioName, setPortfolioName] = useState('Main portfolio')
   const [submitting, setSubmitting] = useState(false)
 
@@ -34,7 +34,7 @@ export const Onboarding = () => {
                 <Badge variant="light">1 of 1</Badge>
               </Group>
               <TextInput label="Profile name" placeholder="Personal" value={profileName} onChange={(event) => setProfileName(event.currentTarget.value)} required maxLength={100} />
-              <NativeSelect label="Default currency" data={['USD', 'EUR', 'GBP', 'CAD', 'AUD']} value={currency} onChange={(event) => setCurrency(event.currentTarget.value.toUpperCase())} required />
+              <NativeSelect label="Default currency" data={['PLN', 'USD', 'EUR', 'GBP', 'CAD', 'AUD']} value={currency} onChange={(event) => setCurrency(event.currentTarget.value.toUpperCase())} required />
               <TextInput label="First portfolio" placeholder="Long term" value={portfolioName} onChange={(event) => setPortfolioName(event.currentTarget.value)} required maxLength={100} />
               <Button type="submit" size="md" loading={submitting} leftSection={!submitting && <IconPlus size={17} />}>Create profile and portfolio</Button>
             </Stack>
