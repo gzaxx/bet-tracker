@@ -43,8 +43,3 @@
   background: linear-gradient(135deg, #f5f3ff, #eef2ff);
 }
 
-@media (max-width: 48em) {
-  .dashboard-heading {
-    align-items: stretch;
-  }
-}

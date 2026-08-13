@@ -1,19 +1,17 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Button, Card, Group, Paper, Select, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title, Badge } from '@mantine/core'
-import { IconChartDonut, IconFolders, IconPlus, IconTrash, IconWallet } from '@tabler/icons-react'
+import { Badge, Button, Card, Group, Paper, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title } from '@mantine/core'
+import { IconChartDonut, IconPlus, IconTrash, IconWallet } from '@tabler/icons-react'
 import { PriceManager } from '../prices/PriceManager'
 import { useProfiles } from '../profiles/ProfileContext'
 import { SummaryManager } from '../summary/SummaryManager'
 import { TradeManager } from '../trades/TradeManager'
 import { Confirmation } from './Confirmation'
 import { ErrorBanner } from './ErrorBanner'
-import { NewProfileForm } from './NewProfileForm'
 import { PortfolioCard } from './PortfolioCard'
-import { ProfileSettings } from './ProfileSettings'
 import type { DeleteTarget } from './types'
 
 export const Dashboard = () => {
-  const { profiles, activeProfile, activeProfileId, portfolios, selectProfile, createPortfolio, deleteProfile, deletePortfolio } = useProfiles()
+  const { activeProfile, activeProfileId, portfolios, createPortfolio, deleteProfile, deletePortfolio } = useProfiles()
   const [portfolioName, setPortfolioName] = useState('')
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | null>(null)
   const [creatingPortfolio, setCreatingPortfolio] = useState(false)
@@ -63,14 +61,11 @@ export const Dashboard = () => {
 
   return (
     <>
-      <Group justify="space-between" align="flex-end" mb="xl" className="dashboard-heading">
-        <div>
-          <Text size="sm" fw={700} c="indigo" tt="uppercase">Overview</Text>
-          <Title order={1} size="h1" mt={4}>Your investing workspace</Title>
-          <Text c="dimmed">Track decisions, positions, and performance without the spreadsheet sprawl.</Text>
-        </div>
-        <Select aria-label="Active profile" value={String(activeProfile.id)} onChange={(value) => { if (value) { setSelectedPortfolioId(null); selectProfile(Number(value)) } }} data={profiles.map((profile) => ({ value: String(profile.id), label: `${profile.name} · ${profile.defaultCurrency}` }))} leftSection={<IconFolders size={16} />} w={{ base: '100%', sm: 240 }} />
-      </Group>
+      <div>
+        <Text size="sm" fw={700} c="indigo" tt="uppercase">Overview</Text>
+        <Title order={1} size="h1" mt={4}>Your investing workspace</Title>
+        <Text c="dimmed">Track decisions, positions, and performance without the spreadsheet sprawl.</Text>
+      </div>
       <ErrorBanner />
       <Card withBorder radius="lg" padding="xl" mb="xl" className="hero-card">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
@@ -78,7 +73,7 @@ export const Dashboard = () => {
           <ThemeIcon visibleFrom="sm" size={64} radius="xl" variant="gradient" gradient={{ from: 'indigo', to: 'cyan', deg: 135 }}><IconChartDonut size={32} /></ThemeIcon>
         </Group>
       </Card>
-      <ProfileSettings />
+
       <Group id="portfolio-dashboard" justify="space-between" align="flex-end" mb="md">
         <div><Text size="sm" fw={700} c="indigo" tt="uppercase">Your space</Text><Title order={2} size="h2">Portfolios</Title><Text size="sm" c="dimmed">Every portfolio reports in {activeProfile.defaultCurrency}.</Text></div>
         <Button variant="subtle" color="red" leftSection={<IconTrash size={16} />} onClick={() => setPendingDelete({ kind: 'profile', id: activeProfile.id, label: `profile “${activeProfile.name}”` })}>Delete profile</Button>
@@ -97,7 +92,7 @@ export const Dashboard = () => {
       </SimpleGrid>
       {activePortfolios.length === 0 && <Paper withBorder radius="lg" p="xl" ta="center" mb="md"><ThemeIcon variant="light" color="indigo" size={48} radius="xl" mb="sm"><IconWallet size={22} /></ThemeIcon><Title order={3} size="h4">No portfolios yet</Title><Text size="sm" c="dimmed">Use the card above to create a portfolio and start recording trades.</Text></Paper>}
       {selectedPortfolio && <Stack gap="lg"><SummaryManager portfolio={selectedPortfolio} refreshKey={summaryRefreshKey} /><TradeManager portfolio={selectedPortfolio} onChanged={() => setSummaryRefreshKey((current) => current + 1)} /><PriceManager portfolio={selectedPortfolio} onChanged={() => setSummaryRefreshKey((current) => current + 1)} /></Stack>}
-      <NewProfileForm />
+
       <Confirmation target={pendingDelete} onCancel={() => setPendingDelete(null)} onConfirm={() => void confirmDelete()} submitting={deleting} />
     </>
   )
