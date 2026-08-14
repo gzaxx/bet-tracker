@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   AppShell,
   ActionIcon,
-  Badge,
   Burger,
   Group,
   Select,
@@ -11,7 +10,6 @@ import {
   Tooltip,
 } from "@mantine/core";
 import {
-  IconAdjustments,
   IconChartDonut,
   IconPlus,
   IconSettings,

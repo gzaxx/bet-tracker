@@ -57,7 +57,8 @@ export const SummaryManager = ({ portfolio, refreshKey }: { portfolio: Portfolio
           <Text size="sm" c="dimmed">FIFO holdings and manual prices in {portfolio.currency}.</Text>
         </div>
         <Group gap="xs">
-          <Button component="a" href="#portfolio-dashboard" variant="subtle" size="sm">Overview</Button>
+          <Button component="a" href="#overview" variant="subtle" size="sm">Overview</Button>
+          <Button component="a" href="#portfolio-management" variant="subtle" size="sm">Portfolio management</Button>
           <Button component="a" href="#trades" variant="subtle" size="sm">Trades</Button>
           <Button variant="light" size="sm" leftSection={<IconRefresh size={15} />} onClick={() => void refresh()} loading={loading}>Refresh</Button>
         </Group>

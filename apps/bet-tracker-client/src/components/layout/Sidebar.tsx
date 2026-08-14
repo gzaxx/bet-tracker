@@ -8,9 +8,8 @@ import {
   Text,
 } from "@mantine/core";
 import {
-  IconArrowUpRight,
-  IconChartDonut,
   IconLayoutDashboard,
+  IconSettings,
 } from "@tabler/icons-react";
 
 type SidebarProps = {
@@ -26,23 +25,16 @@ export const Sidebar = ({ onNavigate }: SidebarProps) => (
       <Stack gap={4}>
         <NavLink
           component="a"
-          href="#portfolio-dashboard"
+          href="#overview"
           label="Overview"
           leftSection={<IconLayoutDashboard size={17} />}
           onClick={onNavigate}
         />
         <NavLink
           component="a"
-          href="#trades"
-          label="Trades"
-          leftSection={<IconArrowUpRight size={17} />}
-          onClick={onNavigate}
-        />
-        <NavLink
-          component="a"
-          href="#prices"
-          label="Prices"
-          leftSection={<IconChartDonut size={17} />}
+          href="#portfolios"
+          label="Portfolios"
+          leftSection={<IconSettings size={17} />}
           onClick={onNavigate}
         />
       </Stack>

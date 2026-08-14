@@ -62,9 +62,9 @@ export const Dashboard = () => {
   return (
     <>
       <div>
-        <Text size="sm" fw={700} c="indigo" tt="uppercase">Overview</Text>
-        <Title order={1} size="h1" mt={4}>Your investing workspace</Title>
-        <Text c="dimmed">Track decisions, positions, and performance without the spreadsheet sprawl.</Text>
+        <Text size="sm" fw={700} c="indigo" tt="uppercase">Portfolio management</Text>
+        <Title order={1} size="h1" mt={4}>Manage your investing workspace</Title>
+        <Text c="dimmed">Create portfolios, review positions, record trades, and keep market prices current.</Text>
       </div>
       <ErrorBanner />
       <Card withBorder radius="lg" padding="xl" mb="xl" className="hero-card">
@@ -74,8 +74,8 @@ export const Dashboard = () => {
         </Group>
       </Card>
 
-      <Group id="portfolio-dashboard" justify="space-between" align="flex-end" mb="md">
-        <div><Text size="sm" fw={700} c="indigo" tt="uppercase">Your space</Text><Title order={2} size="h2">Portfolios</Title><Text size="sm" c="dimmed">Every portfolio reports in {activeProfile.defaultCurrency}.</Text></div>
+      <Group id="portfolio-management" justify="space-between" align="flex-end" mb="md">
+        <div><Text size="sm" fw={700} c="indigo" tt="uppercase">Portfolio management</Text><Title order={2} size="h2">Your portfolios</Title><Text size="sm" c="dimmed">Every portfolio reports in {activeProfile.defaultCurrency}.</Text></div>
         <Button variant="subtle" color="red" leftSection={<IconTrash size={16} />} onClick={() => setPendingDelete({ kind: 'profile', id: activeProfile.id, label: `profile “${activeProfile.name}”` })}>Delete profile</Button>
       </Group>
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} mb="md">
