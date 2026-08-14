@@ -39,6 +39,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const [activeProfileId, setActiveProfileId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const clearError = useCallback(() => setError(null), [])
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -188,8 +189,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     createPortfolio,
     updatePortfolio,
     deletePortfolio,
-    clearError: () => setError(null),
-  }), [activeProfile, activeProfileId, createPortfolio, createProfile, createProfileAndPortfolio, deletePortfolio, deleteProfile, error, loading, portfolios, profiles, refresh, selectProfile, updatePortfolio, updateProfile])
+    clearError,
+  }), [activeProfile, activeProfileId, clearError, createPortfolio, createProfile, createProfileAndPortfolio, deletePortfolio, deleteProfile, error, loading, portfolios, profiles, refresh, selectProfile, updatePortfolio, updateProfile])
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
 }
